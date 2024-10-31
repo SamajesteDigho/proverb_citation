@@ -7,6 +7,7 @@ from app.models.user_model import UserModel
 from app.schemas.user_schema import UserCreateSchema, UserFullSchema, UserUpdateSchema
 from app.utils import helpers
 from app.utils.database import get_db
+from app.utils.oauth2 import get_user_from_token
 
 router = APIRouter(prefix='/users', tags=['Users'])
 
@@ -38,7 +39,11 @@ def get_user(ref: str, db: Session = Depends(get_db)):
     return user
 
 @router.put('/{ref}', response_model=UserFullSchema)
-def update_user(ref:str, data: UserUpdateSchema, db: Session = Depends(get_db)):
+def update_user(ref:str, data: UserUpdateSchema, db: Session = Depends(get_db),
+                curr_user: UserModel = Depends(get_user_from_token)):
+    if curr_user is None or curr_user.ref != ref:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail='You are not authorized to perform this action')
     query = db.query(UserModel).filter(UserModel.ref == ref)
     user = query.first()
     if user is None:
@@ -50,7 +55,11 @@ def update_user(ref:str, data: UserUpdateSchema, db: Session = Depends(get_db)):
     return user
 
 @router.delete('/{ref}')
-def delete_user(ref: str, db: Session = Depends(get_db)):
+def delete_user(ref: str, db: Session = Depends(get_db),
+                curr_user: UserModel = Depends(get_user_from_token)):
+    if curr_user is None or curr_user.ref != ref:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail='You are not authorized to perform this action')
     query = db.query(UserModel).filter(UserModel.ref == ref)
     user = query.first()
     if user is None:
