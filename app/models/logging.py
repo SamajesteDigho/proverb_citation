@@ -1,9 +1,10 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, text, TIMESTAMP
-from rough.utils.db import Base
+from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP, text
 
-class LoginTable(Base):
-    __tablename__ = 'logins'
-    
+from app.utils.database import Base
+
+class LoginModel(Base):
+    __tablename__ = 'login_stamp'
+
     id = Column(Integer, primary_key=True, nullable=False)
     user_ref = Column(String, ForeignKey('users.ref', ondelete="NO ACTION"), nullable=False)
     token = Column(String, nullable=False)
