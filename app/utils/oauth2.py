@@ -37,7 +37,6 @@ def verify_access_token(token: str, credential_exception) -> TokenPayload:
 
 def get_user_from_token(token: str = Depends(oauth_scheme), db: Session = Depends(get_db)):
     """ Get User by decoding the token """
-    print(f"Token: {token}")
     credential_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                          detail='Authentication token non conformant',
                                          headers={'WWW-Authenticate': 'Bearer'})
